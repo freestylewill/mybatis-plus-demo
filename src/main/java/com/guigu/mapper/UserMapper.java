@@ -20,10 +20,12 @@ public interface UserMapper extends BaseMapper<User> {
 
     User selectByPrimaryKey(Long id);
 
-    Page<User> selectByPage(Page<User> page, @Param(Constants.WRAPPER) Wrapper<Object> wrapper);
+    Page<User> selectByMajunPage(Page<User> page, @Param(Constants.WRAPPER) Wrapper<Object> wrapper);
 
     List<User> selectByUser(User user);
 
 //    List<User> selectMy(@Param(Constants.WRAPPER) Wrapper<User> wrapper);
+
+//    Page<User> selectPage(Page<User> page, @Param("ew") Wrapper<Object> queryWrapper);
 
 }

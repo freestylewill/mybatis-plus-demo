@@ -9,10 +9,14 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="version" jdbcType="INTEGER" property="version" />
-    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+<!--    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />-->
   </resultMap>
+<!--  <sql id="Base_Column_List">-->
+<!--    id, name, age, email, create_time, update_time, version, is_deleted-->
+<!--  </sql>-->
+
   <sql id="Base_Column_List">
-    id, name, age, email, create_time, update_time, version, is_deleted
+    id, name, age, email, create_time, update_time, version
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -20,16 +24,17 @@
     from user
     where id = #{id,jdbcType=BIGINT}
   </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from user
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.guigu.bean.User">
-    insert into user (id, name, age, 
-      email, create_time, update_time, 
+    insert into user (id, name, age,
+      email, create_time, update_time,
       version, is_deleted)
-    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{age,jdbcType=INTEGER}, 
-      #{email,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{age,jdbcType=INTEGER},
+      #{email,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
       #{version,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.guigu.bean.User">
@@ -152,7 +157,7 @@
         </select>
 
 
-  <select id="selectByPage" resultType="com.guigu.bean.User">
+  <select id="selectByMajunPage" resultType="com.guigu.bean.User">
     select
     <include refid="Base_Column_List" />
     from user
@@ -189,6 +194,8 @@
       </if>
     </where>
   </select>
+
+  <!--<select id="selectPage" resultType="com.guigu.bean.User"></select>-->
 
 
 </mapper>

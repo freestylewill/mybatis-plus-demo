@@ -1,13 +1,15 @@
 package com.guigu;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.guigu.bean.User;
 import com.guigu.mapper.UserMapper;
 import com.guigu.sevice.UserService;
 import org.junit.Test;
-import org.junit.platform.commons.util.StringUtils;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -36,8 +38,14 @@ public class MapperTest {
     private UserService userService;
 
     @Test
-    public void testOne() {
-        User user = userMapper.selectByPrimaryKey(1L);
+    public void selectByPrimaryKey() {
+        User user = userMapper.selectByPrimaryKey(3L);
+        System.err.println(user);
+    }
+
+    @Test
+    public void selectById() {
+        User user = userMapper.selectById(1L);
         System.err.println(user);
     }
 
@@ -45,18 +53,49 @@ public class MapperTest {
     @Test
     public void testMyPage() {
         Page<User> objectPage = new Page<>();
+        objectPage.setCurrent(3);
+        objectPage.setSize(2);
+        User user = new User();
+        user.setAge(20);
+        user.setName("zhangsan");
+        QueryWrapper<Object> queryWrapper = new QueryWrapper<>();
+        queryWrapper.and(true,wrapper->wrapper.ge("age",user.getAge()).or().eq("name", user.getName()));
+//        queryWrapper.and(StringUtils.isNotBlank(user.getName()), wrapper -> wrapper.eq("name", user.getName()));
+        Page<User> users = userMapper.selectByMajunPage(objectPage, queryWrapper);
+        //原生自带的
+//        Page<User> users = userMapper.selectPage(objectPage, queryWrapper);
+//        System.err.println(users.getRecords());
+    }
+
+    @Test
+    public void testMyPage2() {
+        IPage<User> objectPage = new Page<>();
         objectPage.setCurrent(1);
         objectPage.setSize(2);
         User user = new User();
         user.setAge(20);
-        user.setName("Tom");
-        QueryWrapper<Object> queryWrapper = new QueryWrapper<>();
-        queryWrapper.and(true,wrapper->wrapper.eq("age",user.getAge()).or().eq("name", user.getName()));
-        queryWrapper.and(StringUtils.isNotBlank(user.getName()), wrapper -> wrapper.eq("name", user.getName()));
-        Page<User> users = userMapper.selectByPage(objectPage, queryWrapper);
+        user.setName("zhangsan");
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.and(true,wrapper->wrapper.ge("age",user.getAge()).or().eq("name", user.getName()));
+//        queryWrapper.and(StringUtils.isNotBlank(user.getName()), wrapper -> wrapper.eq("name", user.getName()));
+//        Page<User> users = userMapper.selectByMajunPage(objectPage, queryWrapper);
+        userMapper.selectPage((Page<User>) objectPage, queryWrapper);
         //原生自带的
 //        Page<User> users = userMapper.selectPage(objectPage, queryWrapper);
-        System.err.println(users.getRecords());
+//        System.err.println(users.getRecords());
+    }
+
+    @Test
+    public void testUserPage() {
+        IPage<User> objectPage = new Page<>();
+        objectPage.setCurrent(1);
+        objectPage.setSize(2);
+        User user = new User();
+        user.setAge(20);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(user);
+        IPage<User> userIPage = userMapper.selectPage(objectPage, queryWrapper);
+        System.err.println(userIPage);
     }
 
     @Test
@@ -108,11 +147,34 @@ public class MapperTest {
     }
 
     /**
+     * 更新
+     */
+    @Test
+    public void updateTest2() {
+        User user = new User();
+        user.setId(3L);
+        user.setIsDeleted("1");
+//        user.setName("updateName");
+        int update = userMapper.updateById(user);
+        System.out.println(user);
+        System.out.println("update = " + update);
+    }
+
+    /**
      * 普通删除
      */
     @Test
     public void deleteTest() {
         int delete = userMapper.deleteById(1310419023559942154L);
+        System.out.println("delete = " + delete);
+    }
+
+    /**
+     * 普通删除
+     */
+    @Test
+    public void deleteTest2() {
+        int delete = userMapper.deleteById(3L);
         System.out.println("delete = " + delete);
     }
 
@@ -222,7 +284,7 @@ public class MapperTest {
      * 通过 id 查询
      */
     @Test
-    public void selectById() {
+    public void testselectById() {
         User user = userMapper.selectById(1L);
         System.out.println(user);
     }
@@ -272,8 +334,8 @@ public class MapperTest {
     @Test
     public void insertUser() {
         User user = new User();
-        user.setName("Monkey001");
-        user.setAge(22);
+        user.setName("Monkey004");
+        user.setAge(25);
         userMapper.insert(user);
         System.out.println(user);
     }
@@ -351,6 +413,40 @@ public class MapperTest {
         userUpdateWrapper.eq(false,"name", "zhangsan");
         int update = userMapper.update(user, userUpdateWrapper);
         System.out.println(update);
+    }
+
+    /**
+     * 获取查询条件
+     */
+    @Test
+    public void getQueryWrapper() {
+        User user = new User();
+        user.setAge(32);
+//        user.setEmail("lomonkey@aliyun.com");
+        user.setName("zhangsan");
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+//        QueryWrapper<User> userQueryWrapper = new QueryWrapper<User>().setEntity(user);
+        QueryWrapper<User> userQueryWrapper = queryWrapper.setEntity(user);
+        userQueryWrapper.ge("age",32);
+        List<User> users = userMapper.selectList(userQueryWrapper);
+//        int result = userMapper.insert(user);
+        System.out.println(users);
+        System.out.println("result = " + users);
+    }
+
+    @Test
+    public void testDelete() {
+        List<User> users = userMapper.selectList(Wrappers.<User>lambdaQuery().eq(User::getIsDeleted,1));
+        System.out.println(users);
+    }
+
+    @Test
+    public void testLambdaUpdate() {
+        LambdaUpdateWrapper<User> luw = Wrappers.lambdaUpdate();
+        luw.set(User::getName, "zhangsan")
+                .set(User::getAge, 1);
+        luw.eq(User::getAge, 20);
+        userMapper.update(null, luw);
     }
 
 }
